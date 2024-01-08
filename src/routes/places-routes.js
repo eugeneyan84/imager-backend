@@ -15,9 +15,9 @@ router.get('/:placeId', (req, res, next) => {
   });
 
   if (!place) {
-    return res
-      .status(404)
-      .json({ message: 'Could not find a place with the provided id.' });
+    const error = new Error('Cound not found a place for the provided id.');
+    error.code = 404;
+    throw error;
   }
 
   res.json({ place });
@@ -31,9 +31,12 @@ router.get('/user/:userId', (req, res, next) => {
   });
 
   if (places.length === 0) {
-    return res.status(404).json({
-      message: 'Could not find any places created by the provided user id.',
-    });
+    console.log(`No places found for user: ${userId}`);
+    const error = new Error(
+      'Could not find any places created by the provided user id.'
+    );
+    error.code = 404;
+    return next(error);
   }
 
   res.json({ places });
