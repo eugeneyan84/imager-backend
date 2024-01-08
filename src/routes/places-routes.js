@@ -1,5 +1,6 @@
 import express from 'express';
 import { TEST_PLACES } from '../data/data.js';
+import HttpError from '../models/http-error.js';
 
 const router = express.Router();
 
@@ -15,9 +16,7 @@ router.get('/:placeId', (req, res, next) => {
   });
 
   if (!place) {
-    const error = new Error('Cound not found a place for the provided id.');
-    error.code = 404;
-    throw error;
+    throw new HttpError('Cound not found a place for the provided id.', 404);
   }
 
   res.json({ place });
@@ -31,12 +30,12 @@ router.get('/user/:userId', (req, res, next) => {
   });
 
   if (places.length === 0) {
-    console.log(`No places found for user: ${userId}`);
-    const error = new Error(
-      'Could not find any places created by the provided user id.'
+    return next(
+      new HttpError(
+        'Could not find any places created by the provided user id.',
+        404
+      )
     );
-    error.code = 404;
-    return next(error);
   }
 
   res.json({ places });
