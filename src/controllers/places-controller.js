@@ -51,3 +51,31 @@ export const createPlace = (req, res, next) => {
 
   res.status(201).json({ place: newPlace });
 };
+
+export const updatePlace = (req, res, next) => {
+  const { title, description } = req.body;
+  const placeId = req.params.placeId;
+
+  const targetPlace = { ...TEST_PLACES.find((p) => p.id === placeId) };
+  const targetIndex = TEST_PLACES.findIndex((p) => p.id === placeId);
+
+  targetPlace.title = title;
+  targetPlace.description = description;
+
+  TEST_PLACES[targetIndex] = targetPlace;
+
+  res.status(200).json({ place: targetPlace });
+};
+
+export const deletePlace = (req, res, next) => {
+  const placeId = req.params.placeId;
+  const targetIndex = TEST_PLACES.findIndex((p) => p.id === placeId);
+  if (targetIndex === -1) {
+    return next(
+      new HttpError(`Place (id: ${placeId}) not found for deletion.`, 404)
+    );
+  } else {
+    TEST_PLACES.splice(targetIndex, 1);
+    res.status(200).json({ message: 'Successfully deleted' });
+  }
+};
