@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { TEST_PLACES } from '../data/data.js';
 import HttpError from '../models/http-error.js';
 
@@ -37,6 +39,7 @@ export const createPlace = (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body;
 
   const newPlace = {
+    id: uuidv4(),
     title,
     description,
     location: coordinates,
