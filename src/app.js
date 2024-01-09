@@ -3,6 +3,8 @@ import { default as placesRouter } from './routes/places-routes.js';
 
 const app = express();
 
+app.use(express.json());
+
 app.use('/api/places', placesRouter);
 
 app.use((error, req, res, next) => {
