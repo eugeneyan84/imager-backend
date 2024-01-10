@@ -41,3 +41,18 @@ export const TEST_PLACES = [
     creator: 'u1',
   },
 ];
+
+export const TEST_USERS = [
+  {
+    id: 'u1',
+    name: 'Jackie Welles',
+    email: 'gagav63161@ziragold.com',
+    password: 'a081f9e8',
+  },
+  {
+    id: 'u2',
+    name: 'Kerry Eurodyne',
+    email: 'kerreuro556@outlook.com',
+    password: '424e6c3e',
+  },
+];
