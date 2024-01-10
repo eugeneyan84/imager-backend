@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 
 import { TEST_PLACES } from '../data/data.js';
 import HttpError from '../models/http-error.js';
+import { getCoordsForAddress } from '../util/location.js';
 
 export const getPlaceById = (req, res, next) => {
   const placeId = req.params.placeId;
@@ -36,15 +37,22 @@ export const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-export const createPlace = (req, res, next) => {
+export const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   console.log(errors);
   if (!errors.isEmpty()) {
     console.error(errors);
-    throw new HttpError('Invalid input(s) detected', 422);
+    next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { title, description, coordinates, address, creator } = req.body;
+  const { title, description, address, creator } = req.body;
+
+  let coordinates;
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch (error) {
+    return next(error);
+  }
 
   const newPlace = {
     id: uuidv4(),
