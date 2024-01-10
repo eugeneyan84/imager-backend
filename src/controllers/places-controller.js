@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { validationResult } from 'express-validator';
 
 import { TEST_PLACES } from '../data/data.js';
 import HttpError from '../models/http-error.js';
@@ -36,6 +37,13 @@ export const getPlacesByUserId = (req, res, next) => {
 };
 
 export const createPlace = (req, res, next) => {
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    console.error(errors);
+    throw new HttpError('Invalid input(s) detected', 422);
+  }
+
   const { title, description, coordinates, address, creator } = req.body;
 
   const newPlace = {
