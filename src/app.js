@@ -1,5 +1,6 @@
 import express from 'express';
 import { default as placesRouter } from './routes/places-routes.js';
+import { default as usersRouter } from './routes/users-routes.js';
 import HttpError from './models/http-error.js';
 
 const app = express();
@@ -7,6 +8,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/api/places', placesRouter);
+app.use('/api/users', usersRouter);
 
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route', 404);
