@@ -1,4 +1,7 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import 'dotenv/config';
+
 import { default as placesRouter } from './routes/places-routes.js';
 import { default as usersRouter } from './routes/users-routes.js';
 import HttpError from './models/http-error.js';
@@ -27,4 +30,16 @@ app.use((error, req, res, next) => {
     .json({ message: error.message || 'An unknown error occurred.' });
 }); // error-handling middleware function
 
-app.listen(3000);
+const mongooseConnStr = `mongodb+srv://${process.env.IMAGER_APP_USERNAME}:${process.env.IMAGER_APP_KEY}@${process.env.IMAGER_APP_HOSTNAME}/?retryWrites=true&w=majority`;
+
+console.log(mongooseConnStr);
+
+mongoose
+  .connect(mongooseConnStr, { dbName: process.env.IMAGER_APP_DBNAME })
+  .then(() => {
+    console.log('Connected to mongoDB.');
+    app.listen(3000);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
