@@ -6,17 +6,26 @@ import HttpError from '../models/http-error.js';
 import { getCoordsForAddress } from '../util/location.js';
 import Place from '../models/place.js';
 
-export const getPlaceById = (req, res, next) => {
+export const getPlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
-  const place = TEST_PLACES.find((p) => {
-    return p.id === Number(placeId);
-  });
 
-  if (!place) {
-    throw new HttpError('Cound not found a place for the provided id.', 404);
+  let targetPlace;
+  try {
+    targetPlace = await Place.findById(placeId);
+  } catch (error) {
+    const err = new HttpError('Error encountered when retrieving place', 500);
+    return next(err);
   }
 
-  res.json({ place });
+  if (!targetPlace) {
+    const err = new HttpError(
+      'Cound not found a place for the provided id.',
+      404
+    );
+    return next(err);
+  }
+
+  res.json({ place: targetPlace.toObject({ getters: true }) });
 };
 
 export const getPlacesByUserId = (req, res, next) => {
@@ -68,7 +77,7 @@ export const createPlace = async (req, res, next) => {
     const result = await newPlace.save();
   } catch (error) {
     const err = new HttpError('Error encountered when creating new place', 500);
-    return next(error);
+    return next(err);
   }
 
   res.status(201).json({ place: newPlace });
