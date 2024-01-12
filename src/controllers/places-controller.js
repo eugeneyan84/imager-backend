@@ -4,6 +4,7 @@ import { validationResult } from 'express-validator';
 import { TEST_PLACES } from '../data/data.js';
 import HttpError from '../models/http-error.js';
 import { getCoordsForAddress } from '../util/location.js';
+import Place from '../models/place.js';
 
 export const getPlaceById = (req, res, next) => {
   const placeId = req.params.placeId;
@@ -45,7 +46,7 @@ export const createPlace = async (req, res, next) => {
     next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { title, description, address, creator } = req.body;
+  const { title, description, imageUrl, address, creator } = req.body;
 
   let coordinates;
   try {
@@ -54,16 +55,21 @@ export const createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  const newPlace = {
-    id: uuidv4(),
+  const newPlace = new Place({
     title,
     description,
+    imageUrl,
     location: coordinates,
     address,
     creator,
-  };
+  });
 
-  TEST_PLACES.push(newPlace);
+  try {
+    const result = await newPlace.save();
+  } catch (error) {
+    const err = new HttpError('Error encountered when creating new place', 500);
+    return next(error);
+  }
 
   res.status(201).json({ place: newPlace });
 };
