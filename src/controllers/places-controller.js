@@ -28,23 +28,29 @@ export const getPlaceById = async (req, res, next) => {
   res.json({ place: targetPlace.toObject({ getters: true }) });
 };
 
-export const getPlacesByUserId = (req, res, next) => {
+export const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.userId;
 
-  const places = TEST_PLACES.filter((p) => {
-    return p.creator === userId;
-  });
-
-  if (places.length === 0) {
-    return next(
-      new HttpError(
-        'Could not find any places created by the provided user id.',
-        404
-      )
+  let targetPlaces;
+  try {
+    targetPlaces = await Place.find({ creator: userId });
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when retrieving place by userId',
+      500
     );
+    return next(err);
   }
 
-  res.json({ places });
+  if (!targetPlaces) {
+    const err = new HttpError(
+      'Cound not find any place for the provided userId.',
+      404
+    );
+    return next(err);
+  }
+
+  res.json(targetPlaces.map((p) => p.toObject({ getters: true })));
 };
 
 export const createPlace = async (req, res, next) => {
