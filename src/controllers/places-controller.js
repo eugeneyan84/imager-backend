@@ -89,7 +89,7 @@ export const createPlace = async (req, res, next) => {
   res.status(201).json({ place: newPlace });
 };
 
-export const updatePlace = (req, res, next) => {
+export const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new HttpError('Invalid input(s) detected', 422);
@@ -98,26 +98,57 @@ export const updatePlace = (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.placeId;
 
-  const targetPlace = { ...TEST_PLACES.find((p) => p.id === placeId) };
-  const targetIndex = TEST_PLACES.findIndex((p) => p.id === placeId);
+  let targetPlace;
+  try {
+    targetPlace = await Place.findByIdAndUpdate(
+      placeId,
+      { title, description },
+      { new: true, runValidators: true }
+    );
+  } catch (error) {
+    console.error(error);
+    const err = new HttpError(`Error encountered when updating place.`, 500);
+    return next(err);
+  }
 
-  targetPlace.title = title;
-  targetPlace.description = description;
+  // targetPlace is undefined if findByIdAndUpdate is unable to locate document by id
+  if (!targetPlace) {
+    const err = new HttpError(
+      `Update failed, no place found with provided placeId.`,
+      404
+    );
+    return next(err);
+  }
 
-  TEST_PLACES[targetIndex] = targetPlace;
-
-  res.status(200).json({ place: targetPlace });
+  res.status(200).json({ place: targetPlace.toObject({ getters: true }) });
 };
 
-export const deletePlace = (req, res, next) => {
+export const deletePlace = async (req, res, next) => {
   const placeId = req.params.placeId;
-  const targetIndex = TEST_PLACES.findIndex((p) => p.id === placeId);
-  if (targetIndex === -1) {
-    return next(
-      new HttpError(`Place (id: ${placeId}) not found for deletion.`, 404)
+
+  let targetPlace;
+
+  try {
+    targetPlace = await Place.findByIdAndDelete(placeId);
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when attempting to delete place with provided placeId.',
+      500
     );
-  } else {
-    TEST_PLACES.splice(targetIndex, 1);
-    res.status(200).json({ message: 'Successfully deleted' });
+    return next(err);
   }
+
+  // targetPlace is undefined if findByIdAndDelete is unable to locate document by id
+  if (!targetPlace) {
+    const err = new HttpError(
+      `Deletion failed, no place found with provided placeId.`,
+      404
+    );
+    return next(err);
+  }
+
+  res.status(200).json({
+    message: 'Successfully deleted',
+    place: targetPlace.toObject({ getters: true }),
+  });
 };
