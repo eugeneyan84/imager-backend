@@ -32,8 +32,6 @@ app.use((error, req, res, next) => {
 
 const mongooseConnStr = `mongodb+srv://${process.env.IMAGER_APP_USERNAME}:${process.env.IMAGER_APP_KEY}@${process.env.IMAGER_APP_HOSTNAME}/?retryWrites=true&w=majority`;
 
-console.log(mongooseConnStr);
-
 mongoose
   .connect(mongooseConnStr, { dbName: process.env.IMAGER_APP_DBNAME })
   .then(() => {
