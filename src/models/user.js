@@ -10,7 +10,7 @@ const userSchema = new Schema({
   },
   password: { type: String, required: true, minlength: 6 },
   imageUrl: { type: String, required: true },
-  places: [{ type: Schema.Types.ObjectId, required: true }],
+  places: [{ type: Schema.Types.ObjectId, required: true, ref: 'Place' }],
 });
 
 //userSchema.plugin(uniqueValidator);
