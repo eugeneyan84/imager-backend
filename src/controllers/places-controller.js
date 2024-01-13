@@ -31,7 +31,7 @@ export const getPlaceById = async (req, res, next) => {
   res.json({ place: targetPlace.toObject({ getters: true }) });
 };
 
-export const getPlacesByUserId = async (req, res, next) => {
+export const getPlacesByUserId_obsolete = async (req, res, next) => {
   const userId = req.params.userId;
 
   let targetPlaces;
@@ -54,6 +54,34 @@ export const getPlacesByUserId = async (req, res, next) => {
   }
 
   res.json(targetPlaces.map((p) => p.toObject({ getters: true })));
+};
+
+export const getPlacesByUserId = async (req, res, next) => {
+  const userId = req.params.userId;
+
+  let targetedUser;
+  try {
+    targetedUser = await User.findById(userId).populate('places');
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when retrieving place by userId',
+      500
+    );
+    return next(err);
+  }
+
+  if (!targetedUser) {
+    const err = new HttpError(
+      'Cound not find any place for the provided userId.',
+      404
+    );
+    return next(err);
+  } else {
+    console.log(`User found! ${targetedUser.places.length}`);
+    console.log(targetedUser.places);
+  }
+
+  res.json(targetedUser.places.map((p) => p.toObject({ getters: true })));
 };
 
 export const createPlace = async (req, res, next) => {
