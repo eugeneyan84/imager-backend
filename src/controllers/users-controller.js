@@ -5,8 +5,20 @@ import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
 import { TEST_USERS } from '../data/data.js';
 
-export const getUsers = (req, res, next) => {
-  res.json({ users: TEST_USERS });
+export const getUsers = async (req, res, next) => {
+  //res.json({ users: TEST_USERS });
+  let users;
+  try {
+    users = await User.find({}, '-password');
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered during retrieving of users',
+      500
+    );
+    return next(err);
+  }
+
+  res.json({ users: users.map((u) => u.toObject({ getters: true })) });
 };
 
 export const signup = async (req, res, next) => {
@@ -15,7 +27,7 @@ export const signup = async (req, res, next) => {
     return next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { name, email, password, imageUrl, places } = req.body;
+  const { name, email, password, imageUrl } = req.body;
 
   let existingUser;
 
@@ -45,7 +57,7 @@ export const signup = async (req, res, next) => {
     email,
     password,
     imageUrl,
-    places,
+    places: [],
   });
 
   try {
@@ -60,12 +72,19 @@ export const signup = async (req, res, next) => {
   res.status(201).json({ user: newUser.toObject({ getters: true }) });
 };
 
-export const login = (req, res, next) => {
+export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const targetUser = TEST_USERS.find((u) => u.email === email);
+  let targetUser;
+  try {
+    targetUser = await User.findOne({ email });
+  } catch (error) {
+    const err = new HttpError('Error encountered during login.', 425002);
+    return next(err);
+  }
+
   if (!targetUser || targetUser.password !== password) {
-    throw new HttpError('Could not identify user.', 401);
+    return next(new HttpError('Invalid email or password.', 401));
   }
 
   res.json({ message: 'Logged in!' });
