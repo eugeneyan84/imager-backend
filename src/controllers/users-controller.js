@@ -39,7 +39,7 @@ export const signup = async (req, res, next) => {
   }
 
   //const existingUser = TEST_USERS.find((u) => u.email === email);
-  if (existingUser) {
+  if (false) {
     const error = new HttpError(
       'Sign-up failed, there is existing user profile with same email.',
       422
@@ -61,7 +61,7 @@ export const signup = async (req, res, next) => {
     const result = await newUser.save();
     console.log(result);
   } catch (error) {
-    console.error(error);
+    console.log(error.message);
     const err = new HttpError('Error encountered during sign up.', 422);
     return next(err);
   }
