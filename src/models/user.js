@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 //import uniqueValidator from '@ladjs/mongoose-unique-validator';
 
 const userSchema = new Schema({
@@ -10,7 +10,7 @@ const userSchema = new Schema({
   },
   password: { type: String, required: true, minlength: 6 },
   imageUrl: { type: String, required: true },
-  places: { type: String, required: true },
+  places: [{ type: Types.ObjectId, required: true }],
 });
 
 //userSchema.plugin(uniqueValidator);
