@@ -92,7 +92,7 @@ export const createPlace = async (req, res, next) => {
 export const updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError('Invalid input(s) detected', 422);
+    return next(new HttpError('Invalid input(s) detected', 422));
   }
 
   const { title, description } = req.body;
