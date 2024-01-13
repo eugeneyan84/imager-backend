@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { validationResult } from 'express-validator';
+import { startSession } from 'mongoose';
 
 import { TEST_PLACES } from '../data/data.js';
 import HttpError from '../models/http-error.js';
 import { getCoordsForAddress } from '../util/location.js';
 import Place from '../models/place.js';
+import User from '../models/user.js';
 
 export const getPlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
@@ -70,17 +72,38 @@ export const createPlace = async (req, res, next) => {
     return next(error);
   }
 
+  let targetedUser;
+  try {
+    targetedUser = await User.findById(creator);
+  } catch (error) {
+    return next(
+      new HttpError('Error encountered when verifying user details', 500)
+    );
+  }
+
+  if (!targetedUser) {
+    return next(new HttpError('Create place failed, user not found.', 404));
+  }
+
   const newPlace = new Place({
     title,
     description,
     imageUrl,
     location: coordinates,
     address,
-    creator,
+    creator: targetedUser._id,
   });
 
   try {
-    const result = await newPlace.save();
+    const session = await startSession();
+    session.startTransaction();
+
+    const result = await newPlace.save({ session });
+
+    targetedUser.places.push(newPlace);
+    const result2 = await targetedUser.save({ session });
+
+    await session.commitTransaction();
   } catch (error) {
     const err = new HttpError('Error encountered when creating new place', 500);
     return next(err);
