@@ -7,6 +7,7 @@ import HttpError from '../models/http-error.js';
 import { getCoordsForAddress } from '../util/location.js';
 import Place from '../models/place.js';
 import User from '../models/user.js';
+import place from '../models/place.js';
 
 export const getPlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
@@ -149,20 +150,20 @@ export const updatePlace = async (req, res, next) => {
 export const deletePlace = async (req, res, next) => {
   const placeId = req.params.placeId;
 
-  let targetPlace;
+  let targetedPlace;
 
   try {
-    targetPlace = await Place.findByIdAndDelete(placeId);
+    targetedPlace = await Place.findById(placeId).populate('creator');
   } catch (error) {
     const err = new HttpError(
-      'Error encountered when attempting to delete place with provided placeId.',
+      'Error encountered when attempting to retrieve place.',
       500
     );
     return next(err);
   }
 
   // targetPlace is undefined if findByIdAndDelete is unable to locate document by id
-  if (!targetPlace) {
+  if (!targetedPlace) {
     const err = new HttpError(
       `Deletion failed, no place found with provided placeId.`,
       404
@@ -170,8 +171,25 @@ export const deletePlace = async (req, res, next) => {
     return next(err);
   }
 
+  try {
+    const session = await startSession();
+    session.startTransaction();
+
+    const result = await targetedPlace.deleteOne({ session });
+    targetedPlace.creator.places.pull(targetedPlace);
+    const result1 = await targetedPlace.creator.save({ session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    console.error(error);
+    const err = new HttpError(
+      `Error encountered when attempting to delete place.`,
+      404
+    );
+    return next(err);
+  }
+
   res.status(200).json({
     message: 'Successfully deleted',
-    place: targetPlace.toObject({ getters: true }),
   });
 };
