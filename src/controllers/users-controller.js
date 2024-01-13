@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { validationResult } from 'express-validator';
 
+import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
 import { TEST_USERS } from '../data/data.js';
 
@@ -8,32 +9,55 @@ export const getUsers = (req, res, next) => {
   res.json({ users: TEST_USERS });
 };
 
-export const signup = (req, res, next) => {
+export const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError('Invalid input(s) detected', 422);
+    return next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, imageUrl, places } = req.body;
 
-  const existingUser = TEST_USERS.find((u) => u.email === email);
+  let existingUser;
+
+  try {
+    existingUser = await User.findOne({ email });
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered during user details verification',
+      500
+    );
+    return next(err);
+  }
+
+  //const existingUser = TEST_USERS.find((u) => u.email === email);
   if (existingUser) {
-    throw new HttpError(
-      'Sign-up failed, there is existing user profile with provided email.',
+    const error = new HttpError(
+      'Sign-up failed, there is existing user profile with same email.',
       422
     );
+    return next(error);
+  } else {
+    console.log('Email verification is good!');
   }
 
-  const newUser = {
-    id: uuidv4(),
+  const newUser = new User({
     name,
     email,
     password,
-  };
+    imageUrl,
+    places,
+  });
 
-  TEST_USERS.push(newUser);
+  try {
+    const result = await newUser.save();
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+    const err = new HttpError('Error encountered during sign up.', 422);
+    return next(err);
+  }
 
-  res.status(201).json({ user: newUser });
+  res.status(201).json({ user: newUser.toObject({ getters: true }) });
 };
 
 export const login = (req, res, next) => {
