@@ -1,12 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
 import { validationResult } from 'express-validator';
 
 import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
-import { TEST_USERS } from '../data/data.js';
 
 export const getUsers = async (req, res, next) => {
-  //res.json({ users: TEST_USERS });
   let users;
   try {
     users = await User.find({}, '-password');
