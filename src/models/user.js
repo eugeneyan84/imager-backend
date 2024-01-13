@@ -7,6 +7,24 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    validate: [
+      {
+        validator: async function (email) {
+          const user = await this.constructor.findOne({ email });
+          if (user) {
+            return false;
+          }
+          return true;
+        },
+        message: (props) => 'Email address is already in use.',
+      },
+      {
+        validator: function (email) {
+          return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
+        },
+        message: (props) => 'Email address is of invalid format',
+      },
+    ],
   },
   password: { type: String, required: true, minlength: 6 },
   imageUrl: { type: String, required: true },
