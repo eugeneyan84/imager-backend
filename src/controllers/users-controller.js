@@ -24,9 +24,9 @@ export const signup = async (req, res, next) => {
     return next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { name, email, password, imageUrl } = req.body;
+  const { name, email, password } = req.body;
 
-  let existingUser;
+  /*   let existingUser;
 
   try {
     existingUser = await User.findOne({ email });
@@ -36,7 +36,7 @@ export const signup = async (req, res, next) => {
       500
     );
     return next(err);
-  }
+  } */
 
   //const existingUser = TEST_USERS.find((u) => u.email === email);
   if (false) {
@@ -53,7 +53,7 @@ export const signup = async (req, res, next) => {
     name,
     email,
     password,
-    imageUrl,
+    imageUrl: 'https://i.imgur.com/8CQNrsM.jpg', // hardcode default avatar during sign up
     places: [],
   });
 
