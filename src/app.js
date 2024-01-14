@@ -10,6 +10,16 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  next();
+});
+
 app.use('/api/places', placesRouter);
 app.use('/api/users', usersRouter);
 
@@ -36,7 +46,7 @@ mongoose
   .connect(mongooseConnStr, { dbName: process.env.IMAGER_APP_DBNAME })
   .then(() => {
     console.log('Connected to mongoDB.');
-    app.listen(3000);
+    app.listen(process.env.PORT);
   })
   .catch((error) => {
     console.error(error);
