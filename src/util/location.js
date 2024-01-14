@@ -5,11 +5,11 @@ import HttpError from '../models/http-error.js';
 dotenv.config({ path: './.env' });
 
 export const getCoordsForAddress = async (address) => {
-  console.log(`address: ${address}, api-key: ${process.env.API_KEY}`);
+  //console.log(`address: ${address}, api-key: ${process.env.GOOGLE_API_KEY}`);
   const response = await axios.get(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address
-    )}&key=${process.env.API_KEY}`
+    )}&key=${process.env.GOOGLE_API_KEY}`
   );
 
   const data = response.data;
