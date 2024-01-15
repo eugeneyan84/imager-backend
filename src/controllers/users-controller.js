@@ -61,8 +61,14 @@ export const signup = async (req, res, next) => {
     const result = await newUser.save();
     console.log(result);
   } catch (error) {
-    console.log(error.message);
-    const err = new HttpError('Error encountered during sign up.', 422);
+    let message;
+    if (error.errors && Object.keys(error.errors).length > 0) {
+      message = error.errors[Object.keys(error.errors)[0]].message;
+    } else {
+      message = 'Error encountered during sign up.';
+    }
+    console.log(message);
+    const err = new HttpError(message, 422);
     return next(err);
   }
 
