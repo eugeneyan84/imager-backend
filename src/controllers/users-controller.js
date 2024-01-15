@@ -90,5 +90,8 @@ export const login = async (req, res, next) => {
     return next(new HttpError('Invalid email or password.', 401));
   }
 
-  res.json({ message: 'Logged in!' });
+  const profile = { ...targetUser.toObject({ getters: true }) };
+  delete profile.password;
+
+  res.json({ message: 'Logged in!', user: profile });
 };
