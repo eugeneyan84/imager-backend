@@ -114,7 +114,7 @@ export const createPlace = async (req, res, next) => {
   const newPlace = new Place({
     title,
     description,
-    imageUrl,
+    imageUrl: 'https://i.imgur.com/fHDWNdd.png',
     location: coordinates,
     address,
     creator: targetedUser._id,
@@ -131,6 +131,9 @@ export const createPlace = async (req, res, next) => {
 
     await session.commitTransaction();
   } catch (error) {
+    console.error('*');
+    console.error(error);
+    console.error('*');
     const err = new HttpError('Error encountered when creating new place', 500);
     return next(err);
   }
