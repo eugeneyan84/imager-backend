@@ -78,7 +78,9 @@ export const getPlacesByUserId = async (req, res, next) => {
     console.log(targetedUser.places);
   }
 
-  res.json(targetedUser.places.map((p) => p.toObject({ getters: true })));
+  res.json({
+    places: targetedUser.places.map((p) => p.toObject({ getters: true })),
+  });
 };
 
 export const createPlace = async (req, res, next) => {
