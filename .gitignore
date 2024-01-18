@@ -131,3 +131,6 @@ dist
 
 # misc
 .DS_Store
+
+# ignore image files in upload folder
+uploads/images/*
