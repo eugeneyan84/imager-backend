@@ -53,7 +53,7 @@ export const signup = async (req, res, next) => {
     name,
     email,
     password,
-    imageUrl: 'https://i.imgur.com/8CQNrsM.jpg', // hardcode default avatar during sign up
+    imageUrl: `${req.file.path}`,
     places: [],
   });
 
