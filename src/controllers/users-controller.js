@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
@@ -71,7 +72,28 @@ export const signup = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(201).json({ user: newUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      process.env.BACKEND_P_KEY,
+      { expiresIn: '1h' }
+    );
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when creating user, please try again',
+      500
+    );
+    return next(err);
+  }
+
+  res.status(201).json({
+    userId: newUser.id,
+    email: newUser.email,
+    name: newUser.name,
+    imageUrl: newUser.imageUrl,
+    token,
+  });
 };
 
 export const login = async (req, res, next) => {
@@ -103,8 +125,29 @@ export const login = async (req, res, next) => {
     );
   }
 
-  const profile = { ...targetUser.toObject({ getters: true }) };
-  delete profile.password;
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      process.env.BACKEND_P_KEY,
+      { expiresIn: '1h' }
+    );
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when creating user, please try again',
+      500
+    );
+    return next(err);
+  }
 
-  res.json({ message: 'Logged in!', user: profile });
+  //const profile = { ...targetUser.toObject({ getters: true }) };
+  //delete profile.password;
+
+  res.json({
+    userId: targetUser.id,
+    name: targetUser.name,
+    email: targetUser.email,
+    imageUrl: targetUser.imageUrl,
+    token,
+  });
 };
