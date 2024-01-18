@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import { startSession } from 'mongoose';
+import fs from 'fs';
 
 import HttpError from '../models/http-error.js';
 import { getCoordsForAddress } from '../util/location.js';
@@ -116,7 +117,7 @@ export const createPlace = async (req, res, next) => {
   const newPlace = new Place({
     title,
     description,
-    imageUrl: 'https://i.imgur.com/fHDWNdd.png',
+    imageUrl: req.file.path,
     location: coordinates,
     address,
     creator: targetedUser._id,
@@ -201,6 +202,8 @@ export const deletePlace = async (req, res, next) => {
     return next(err);
   }
 
+  const imagePath = targetedPlace.imageUrl;
+
   try {
     const session = await startSession();
     session.startTransaction();
@@ -218,6 +221,10 @@ export const deletePlace = async (req, res, next) => {
     );
     return next(err);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.error(err);
+  });
 
   res.status(200).json({
     message: 'Successfully deleted',
