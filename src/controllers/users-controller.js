@@ -81,12 +81,26 @@ export const login = async (req, res, next) => {
   try {
     targetUser = await User.findOne({ email });
   } catch (error) {
-    const err = new HttpError('Error encountered during login.', 425002);
+    const err = new HttpError('Error encountered during login.', 500);
     return next(err);
   }
 
-  if (!targetUser || targetUser.password !== password) {
+  if (!targetUser) {
     return next(new HttpError('Invalid email or password.', 401));
+  }
+
+  let isValidPwd = false;
+  try {
+    isValidPwd = await bcrypt.compare(password, targetUser.password);
+  } catch (error) {
+    const err = new HttpError('Error encountered during login.', 500);
+    return next(err);
+  }
+
+  if (!isValidPwd) {
+    return next(
+      new HttpError('Invalid credentials, could not log you in.', 401)
+    );
   }
 
   const profile = { ...targetUser.toObject({ getters: true }) };
