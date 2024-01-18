@@ -1,4 +1,5 @@
 import { validationResult } from 'express-validator';
+import bcrypt from 'bcryptjs';
 
 import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
@@ -26,19 +27,6 @@ export const signup = async (req, res, next) => {
 
   const { name, email, password } = req.body;
 
-  /*   let existingUser;
-
-  try {
-    existingUser = await User.findOne({ email });
-  } catch (error) {
-    const err = new HttpError(
-      'Error encountered during user details verification',
-      500
-    );
-    return next(err);
-  } */
-
-  //const existingUser = TEST_USERS.find((u) => u.email === email);
   if (false) {
     const error = new HttpError(
       'Sign-up failed, there is existing user profile with same email.',
@@ -49,10 +37,21 @@ export const signup = async (req, res, next) => {
     console.log('Email verification is good!');
   }
 
+  let hashPwd;
+  try {
+    hashPwd = await bcrypt.hash(password, 12);
+  } catch (error) {
+    const err = new HttpError(
+      'Error encountered when creating user, please try again',
+      500
+    );
+    return next(err);
+  }
+
   const newUser = new User({
     name,
     email,
-    password,
+    password: hashPwd,
     imageUrl: `${req.file.path}`,
     places: [],
   });
