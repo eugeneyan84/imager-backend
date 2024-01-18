@@ -1,5 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 import 'dotenv/config';
 
 import { default as placesRouter } from './routes/places-routes.js';
@@ -9,6 +11,8 @@ import HttpError from './models/http-error.js';
 const app = express();
 
 app.use(express.json());
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,6 +36,12 @@ app.use((error, req, res, next) => {
   console.log(
     `Error-handling middlware start: ${error}, headersSent: ${res.headersSent}`
   );
+  if (req.file) {
+    console.log('File detected in this request, rolling back');
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
   if (res.headersSent) {
     return next(error);
   }
