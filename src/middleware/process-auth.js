@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const processAuth = (req, res, next) => {
   if (req.method === 'OPTIONS') {
     console.log('OPTIONS call detected, letting it pass through.');
-    next();
+    return next();
   }
   let token;
   try {
