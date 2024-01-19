@@ -222,8 +222,12 @@ export const deletePlace = async (req, res, next) => {
     return next(err);
   }
 
+  console.log(`Deleting ${imagePath}`);
   fs.unlink(imagePath, (err) => {
-    console.error(err);
+    if (err) {
+      console.error(`Error occurred during image deletion: ${err.message}`);
+    }
+    console.log(`${imagePath} deleted.`);
   });
 
   res.status(200).json({
