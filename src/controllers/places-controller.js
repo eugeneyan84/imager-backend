@@ -155,24 +155,35 @@ export const updatePlace = async (req, res, next) => {
 
   let targetPlace;
   try {
-    targetPlace = await Place.findByIdAndUpdate(
+    targetPlace = await Place.findById(
       placeId,
       { title, description },
       { new: true, runValidators: true }
     );
   } catch (error) {
     console.error(error);
-    const err = new HttpError(`Error encountered when updating place.`, 500);
-    return next(err);
+    return next(new HttpError(`Error encountered when updating place.`, 500));
   }
 
   // targetPlace is undefined if findByIdAndUpdate is unable to locate document by id
   if (!targetPlace) {
-    const err = new HttpError(
-      `Update failed, no place found with provided placeId.`,
-      404
+    return next(
+      new HttpError(`Update failed, no place found with provided placeId.`, 404)
     );
-    return next(err);
+  }
+
+  // req.userData.userId populated by processAuth middleware
+  if (targetPlace.creator.toString() !== req.userData.userId) {
+    return next(new HttpError('Unauthorised update attempt', 401));
+  }
+
+  targetPlace.title = title;
+  targetPlace.description = description;
+
+  try {
+    await targetPlace.save();
+  } catch (error) {
+    return next(new HttpError('Error encountered when updating place', 500));
   }
 
   res.status(200).json({ place: targetPlace.toObject({ getters: true }) });
