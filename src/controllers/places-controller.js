@@ -213,6 +213,10 @@ export const deletePlace = async (req, res, next) => {
     return next(err);
   }
 
+  if (targetedPlace.creator.id !== req.userData.userId) {
+    return next(new HttpError('Unauthorised delete attempt', 401));
+  }
+
   const imagePath = targetedPlace.imageUrl;
 
   try {
