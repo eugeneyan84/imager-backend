@@ -67,7 +67,6 @@ export const signup = async (req, res, next) => {
     } else {
       message = 'Error encountered during sign up.';
     }
-    console.log(message);
     const err = new HttpError(message, 422);
     return next(err);
   }
@@ -87,12 +86,17 @@ export const signup = async (req, res, next) => {
     return next(err);
   }
 
-  res.status(201).json({
-    userId: newUser.id,
+  const userObj = {
+    id: newUser.id,
     email: newUser.email,
     name: newUser.name,
     imageUrl: newUser.imageUrl,
     token,
+  };
+
+  //console.log(userObj);
+  res.status(201).json({
+    user: userObj,
   });
 };
 
@@ -128,13 +132,14 @@ export const login = async (req, res, next) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
+      { userId: targetUser.id, email: targetUser.email },
       process.env.BACKEND_P_KEY,
       { expiresIn: '1h' }
     );
   } catch (error) {
+    console.error(error);
     const err = new HttpError(
-      'Error encountered when creating user, please try again',
+      'Error encountered during login, please try again',
       500
     );
     return next(err);
@@ -143,11 +148,15 @@ export const login = async (req, res, next) => {
   //const profile = { ...targetUser.toObject({ getters: true }) };
   //delete profile.password;
 
-  res.json({
-    userId: targetUser.id,
+  const userObj = {
+    id: targetUser.id,
     name: targetUser.name,
     email: targetUser.email,
     imageUrl: targetUser.imageUrl,
     token,
+  };
+  //console.log(userObj);
+  res.json({
+    user: userObj,
   });
 };
