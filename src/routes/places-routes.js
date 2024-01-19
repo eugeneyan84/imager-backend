@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
+import processAuth from '../middleware/process-auth.js';
 
 import {
   createPlace,
@@ -15,6 +16,8 @@ const router = Router();
 router.get('/:placeId', getPlaceById);
 
 router.get('/user/:userId', getPlacesByUserId);
+
+router.use(processAuth);
 
 router.post(
   '/',
