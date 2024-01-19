@@ -112,7 +112,7 @@ export const login = async (req, res, next) => {
   }
 
   if (!targetUser) {
-    return next(new HttpError('Invalid email or password.', 401));
+    return next(new HttpError('Invalid email or password.', 403));
   }
 
   let isValidPwd = false;
@@ -125,7 +125,7 @@ export const login = async (req, res, next) => {
 
   if (!isValidPwd) {
     return next(
-      new HttpError('Invalid credentials, could not log you in.', 401)
+      new HttpError('Invalid credentials, could not log you in.', 403)
     );
   }
 
