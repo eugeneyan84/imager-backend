@@ -92,7 +92,7 @@ export const createPlace = async (req, res, next) => {
     next(new HttpError('Invalid input(s) detected', 422));
   }
 
-  const { title, description, imageUrl, address, creator } = req.body;
+  const { title, description, imageUrl, address } = req.body;
 
   let coordinates;
   try {
@@ -120,7 +120,7 @@ export const createPlace = async (req, res, next) => {
     imageUrl: req.file.path,
     location: coordinates,
     address,
-    creator: targetedUser._id,
+    creator: req.useData.userId,
   });
 
   try {

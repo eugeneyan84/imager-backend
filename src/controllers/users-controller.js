@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import User from '../models/user.js';
 import HttpError from '../models/http-error.js';
+import { generateToken } from '../util/token.js';
 
 export const getUsers = async (req, res, next) => {
   let users;
@@ -72,12 +73,16 @@ export const signup = async (req, res, next) => {
   }
 
   let token;
+  let expiryTimestamp;
   try {
-    token = jwt.sign(
+    const tokenRecord = generateToken(newUser.id, newUser.email);
+    token = tokenRecord.token;
+    expiryTimestamp = tokenRecord.expiryTimestamp;
+    /*     token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       process.env.BACKEND_P_KEY,
       { expiresIn: '1h' }
-    );
+    ); */
   } catch (error) {
     const err = new HttpError(
       'Error encountered when creating user, please try again',
@@ -92,6 +97,7 @@ export const signup = async (req, res, next) => {
     name: newUser.name,
     imageUrl: newUser.imageUrl,
     token,
+    expiryTimestamp,
   };
 
   //console.log(userObj);
@@ -130,12 +136,16 @@ export const login = async (req, res, next) => {
   }
 
   let token;
+  let expiryTimestamp;
   try {
-    token = jwt.sign(
+    const tokenRecord = generateToken(targetUser.id, targetUser.email);
+    token = tokenRecord.token;
+    expiryTimestamp = tokenRecord.expiryTimestamp;
+    /*     token = jwt.sign(
       { userId: targetUser.id, email: targetUser.email },
       process.env.BACKEND_P_KEY,
       { expiresIn: '1h' }
-    );
+    ); */
   } catch (error) {
     console.error(error);
     const err = new HttpError(
@@ -154,6 +164,7 @@ export const login = async (req, res, next) => {
     email: targetUser.email,
     imageUrl: targetUser.imageUrl,
     token,
+    expiryTimestamp,
   };
   //console.log(userObj);
   res.json({
