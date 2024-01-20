@@ -93,6 +93,7 @@ export const createPlace = async (req, res, next) => {
   }
 
   const { title, description, imageUrl, address } = req.body;
+  const creator = req.userData.userId;
 
   let coordinates;
   try {
@@ -120,7 +121,7 @@ export const createPlace = async (req, res, next) => {
     imageUrl: req.file.path,
     location: coordinates,
     address,
-    creator: req.useData.userId,
+    creator,
   });
 
   try {
