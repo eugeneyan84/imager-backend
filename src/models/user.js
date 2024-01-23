@@ -1,5 +1,4 @@
 import { model, Schema } from 'mongoose';
-//import uniqueValidator from '@ladjs/mongoose-unique-validator';
 
 const userSchema = new Schema({
   name: { type: String, required: true },
