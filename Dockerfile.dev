@@ -1,0 +1,16 @@
+FROM node:alpine
+
+ENV NODE_ENV development
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN npm i
+
+# to contain user avatars and location images
+RUN mkdir -p uploads/images
+
+CMD ["node", "src/app.js"]
+
+EXPOSE 3000
