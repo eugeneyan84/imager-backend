@@ -8,15 +8,11 @@ This repository holds the backend source-code.
 
 Imager backend is an Express application built on NodeJS using Vite, and serves as a REST API for the frontend to communicate places and users data back and forth the MongoDB storage.
 
-**Express Validator** provides a means to perform field validation as a middleware in routes, as well as aggregate validation outcomes in the controllers.
-
-**Multer** facilitates handling of image payloads from incoming POST requests, as well as persistence to disk storage within hosted space.
-
-**Mongoose** caters methods to perform CRUD operations for places and users records in MongoDB collections.
-
-Authentication is carried out via issuance and verification of tokens to and from the frontend, especially for save/update/delete actions that require protection against unauthorized changes, and is done so with the **jsonwebtoken** library.
-
-Other dependencies include **uuid** for identifier-generation, **bcryptjs** for password hashing and verification, **axios** for querying Google reverse-geocoding API, **dotenv** for handling of environment variables, and **nodemon** aiding hot-reloading of development activities.
+- **Express Validator** provides a means to perform field validation as a middleware in routes, as well as aggregate validation outcomes in the controllers.
+- **Multer** facilitates handling of image payloads from incoming POST requests, as well as persistence to disk storage within hosted space.
+- **Mongoose** caters methods to perform CRUD operations for places and users records in MongoDB collections.
+- Authentication is carried out via issuance and verification of tokens to and from the frontend, especially for save/update/delete actions that require protection against unauthorized changes, and is done so with the **jsonwebtoken** library.
+- Other dependencies include **uuid** for identifier-generation, **bcryptjs** for password hashing and verification, **axios** for querying Google reverse-geocoding API, **dotenv** for handling of environment variables, and **nodemon** aiding hot-reloading of development activities.
 
 Imager (frontend) repository can be accessed [here](https://github.com/eugeneyan84/imager-frontend).
 
